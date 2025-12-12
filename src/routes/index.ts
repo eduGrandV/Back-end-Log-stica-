@@ -175,7 +175,6 @@ router.get("/dashboard-dataN", async (req: any, res: any) => {
 
 
 router.put("/filiais", async (req: any, res: any) => {
-  // dados enviados no corpo front para back
   const { campanhaId, filiais } = req.body;
   const user: AuthUser = req.user || {
     permissao_nivel: "master",
@@ -187,7 +186,6 @@ router.put("/filiais", async (req: any, res: any) => {
   }
 
   try {
-    //busca a campanha
     const campanhaExistente = await prisma.campaign.findUnique({
       where: { id: campanhaId },
       select: { entidadeId: true },
@@ -196,7 +194,6 @@ router.put("/filiais", async (req: any, res: any) => {
       return res.status(400).json({ error: "Campanha não encontrada" });
     }
 
-    //verifica se o usuario pode editar
     if (
       user.permissao_nivel !== "master" &&
       user.entidade_restrita_id !== campanhaExistente.entidadeId
@@ -207,7 +204,6 @@ router.put("/filiais", async (req: any, res: any) => {
       });
     }
 
-    //atualiza os dados
     const campanhaAtualizada = await prisma.campaign.update({
       where: { id: campanhaId },
       data: {
@@ -226,16 +222,11 @@ router.put("/filiais", async (req: any, res: any) => {
 
 
 router.put("/natal", async (req: any, res: any) => {
-  // 1. Recebemos os dados do Frontend (formato NOVO)
   const { campanhaId, filialNome, chapa, dadosNovos } = req.body;
 
-  // 2. Log para debug (vai aparecer no seu terminal preto do PC)
   console.log("Recebido PUT /natal:", { campanhaId, filialNome, chapa });
 
-  // 3. Validação do formato NOVO
   if (!campanhaId || !chapa || !dadosNovos) {
-    // Se faltar isso, devolvemos erro. 
-    // O erro antigo pedia "filiais", este pede "dadosNovos".
     return res.status(400).json({ 
         error: "Dados incompletos. Esperado: campanhaId, chapa e dadosNovos." 
     });
